@@ -1,5 +1,5 @@
 import {add} from "../utils/common.js";
-import Calculator from "../components/calculator";
+import Calculator from "../components/Calculator/calculator";
 import {fireEvent, render,screen} from "@testing-library/react";
 const mockAdd = jest.fn();
 
