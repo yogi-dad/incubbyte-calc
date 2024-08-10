@@ -1,4 +1,7 @@
 import {add} from "../utils/common.js";
+import Calculator from "../components/calculator";
+import {fireEvent, render,screen} from "@testing-library/react";
+const mockAdd = jest.fn();
 
 describe("Calculator", () => {
     test('should return 0 for an empty string', () => {
@@ -26,5 +29,49 @@ describe("Calculator", () => {
     test('should show all negative numbers in the exception message', () => {
         expect(() => add("1,-2,-3,4")).toThrow("negative numbers not allowed -2,-3");
     });
+
+
+    test('renders input, button, and instruction', () => {
+        render(<Calculator add={mockAdd} />);
+
+        expect(screen.getByPlaceholderText(/enter number/i)).toBeInTheDocument();
+        expect(screen.getByText(/to change the delimiter/i)).toBeInTheDocument();
+        expect(screen.getByText(/calculate sum/i)).toBeInTheDocument();
+    });
+
+    test('calls add function with input value when button is clicked', () => {
+        render(<Calculator add={mockAdd} />);
+
+        const input = screen.getByPlaceholderText(/enter number/i);
+        const button = screen.getByText(/calculate sum/i);
+
+        fireEvent.change(input, { target: { value: '1,2,3' } });
+        fireEvent.click(button);
+
+        expect(mockAdd).toHaveBeenCalledWith('1,2,3');
+    });
+
+    test('displays the total after button click', () => {
+        mockAdd.mockReturnValue(6); // Mock return value for the add function
+
+        render(<Calculator add={mockAdd} />);
+
+        const input = screen.getByPlaceholderText(/enter number/i);
+        const button = screen.getByText(/calculate sum/i);
+
+        fireEvent.change(input, { target: { value: '1,2,3' } });
+        fireEvent.click(button);
+
+        expect(screen.getByText(/total:/i)).toHaveTextContent('Total: 6');
+    });
+
+    test('updates input value correctly', () => {
+        render(<Calculator add={mockAdd} />);
+
+        const input = screen.getByPlaceholderText(/enter number/i);
+        fireEvent.change(input, { target: { value: '1,2' } });
+
+        expect(input.value).toBe('1,2');
+    })
 
 })
